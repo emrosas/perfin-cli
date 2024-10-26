@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"database/sql"
-	_ "modernc.org/sqlite"
 	"os"
+
+	_ "modernc.org/sqlite"
 )
 
 func initDatabase() {
@@ -104,7 +105,7 @@ func queryOverview() (income int, expenses int, balance int) {
 
 	// Get income
 	var i int
-	rows, err := db.Query("SELECT income FROM total_income")
+	rows, err := db.Query("SELECT * FROM total_income")
 	if err != nil {
 		panic(err)
 	}
@@ -119,7 +120,7 @@ func queryOverview() (income int, expenses int, balance int) {
 
 	// Get expenses
 	var e int
-	rows, err = db.Query("SELECT expenses FROM total_expenses")
+	rows, err = db.Query("SELECT * FROM total_expenses")
 	if err != nil {
 		panic(err)
 	}
@@ -147,4 +148,39 @@ func queryOverview() (income int, expenses int, balance int) {
 		balance = b
 	}
 	return income, expenses, balance
+}
+
+func queryIncome() ([]Transaction, error) {
+	db := connectDatabase()
+	defer db.Close()
+
+	var incomes []Transaction
+
+	// Get income
+	rows, err := db.Query("SELECT id, description, amount FROM income")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var income Transaction
+		err := rows.Scan(&income.ID, &income.Description, &income.Amount)
+		if err != nil {
+			return nil, err
+		}
+		incomes = append(incomes, income)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return incomes, nil
+}
+
+type Transaction struct {
+	ID          int
+	Description string
+	Amount      int
 }

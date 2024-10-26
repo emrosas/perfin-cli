@@ -6,42 +6,34 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var incomeCmd = &cobra.Command{
-	Use:   "income",
-	Short: "Insert income",
-	Long:  `Insert an income to your balance. You can insert a value and a description.`,
+var insertCmd = &cobra.Command{
+	Use:   "insert",
+	Short: "Insert income or expense",
+	Long:  `Insert an income or expense to your balance. You can add a value and a description.`,
 
-	Run: insertIncome,
-}
-
-var expenseCmd = &cobra.Command{
-	Use:   "expense",
-	Short: "Insert expense",
-	Long:  `Insert an expense to your balance. You can insert a value and a description.`,
-
-	Run: insertExpense,
+	Run: insertHandler,
 }
 
 func init() {
-	rootCmd.AddCommand(incomeCmd)
-	incomeCmd.Flags().StringP("description", "d", "", "Description of the income")
-	incomeCmd.Flags().IntP("amount", "a", 0, "Amount of income")
-
-	rootCmd.AddCommand(expenseCmd)
-	expenseCmd.Flags().StringP("description", "d", "", "Description of the expense")
-	expenseCmd.Flags().IntP("amount", "a", 0, "Amount of expense")
+	rootCmd.AddCommand(insertCmd)
+	insertCmd.Flags().StringP("description", "d", "", "Description of the income")
+	insertCmd.Flags().IntP("amount", "a", 0, "Amount of income")
+	insertCmd.Flags().StringP("type", "t", "income", "Type of the transaction (income or expense)")
 }
 
-func insertIncome(cmd *cobra.Command, args []string) {
+func insertHandler(cmd *cobra.Command, args []string) {
 	description, _ := cmd.Flags().GetString("description")
 	amount, _ := cmd.Flags().GetInt("amount")
-	insertIncomeToDB(description, amount)
-	fmt.Println("Income inserted successfully")
-}
+	transactionType, _ := cmd.Flags().GetString("type")
 
-func insertExpense(cmd *cobra.Command, args []string) {
-	description, _ := cmd.Flags().GetString("description")
-	amount, _ := cmd.Flags().GetInt("amount")
-	insertExpenseToDB(description, amount)
-	fmt.Println("Expense inserted successfully")
+	switch transactionType {
+	case "income":
+		insertIncomeToDB(description, amount)
+		fmt.Println("Income inserted successfully")
+	case "expense":
+		insertExpenseToDB(description, amount)
+		fmt.Println("Expense inserted successfully")
+	default:
+		fmt.Println("Invalid transaction type. Please use 'income' or 'expense'.")
+	}
 }
