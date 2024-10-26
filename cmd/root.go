@@ -11,7 +11,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "perfin-cli",
+	Use:   "perfin",
 	Short: "A personal financial manager",
 	Long: `This applications helps you get a quick overview of your financial data.
 You can add expenses with category, income and see your balance.

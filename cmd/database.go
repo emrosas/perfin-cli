@@ -36,7 +36,7 @@ func initDatabase() {
 
 	_, err = db.Exec(
 		`CREATE VIEW total_income AS
-			SELECT SUM(amount) FROM income;`,
+			SELECT SUM(amount) as income FROM income;`,
 	)
 	if err != nil {
 		panic(err)
@@ -44,17 +44,19 @@ func initDatabase() {
 
 	_, err = db.Exec(
 		`CREATE VIEW total_expenses AS
-			SELECT SUM(amount) FROM expenses;`,
+			SELECT SUM(amount) as expenses FROM expenses;`,
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	_, err O= db.Exec(
-		`-- CREATE VIEW total_balance AS
---   SELECT (SELECT SUM(amount) FROM income) - (SELECT SUM(amount) FROM expenses) AS balance;
-`
+	_, err = db.Exec(
+		`CREATE VIEW total_balance AS
+			SELECT (SELECT SUM(amount) FROM income) - (SELECT SUM(amount) FROM expenses) AS balance;`,
 	)
+	if err != nil {
+		panic(err)
+	}
 
 }
 
@@ -90,8 +92,59 @@ func insertExpenseToDB(d string, a int) {
 	db := connectDatabase()
 	defer db.Close()
 
-	_, err := db.Exec("INSERT INTO income (description, amount) VALUES (?, ?)", d, a)
+	_, err := db.Exec("INSERT INTO expenses (description, amount) VALUES (?, ?)", d, a)
 	if err != nil {
 		panic(err)
 	}
+}
+
+func queryOverview() (income int, expenses int, balance int) {
+	db := connectDatabase()
+	defer db.Close()
+
+	// Get income
+	var i int
+	rows, err := db.Query("SELECT income FROM total_income")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&income)
+		if err != nil {
+			panic(err)
+		}
+		income = i
+	}
+
+	// Get expenses
+	var e int
+	rows, err = db.Query("SELECT expenses FROM total_expenses")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&expenses)
+		if err != nil {
+			panic(err)
+		}
+		expenses = e
+	}
+
+	// Get balance
+	var b int
+	rows, err = db.Query("SELECT balance FROM total_balance")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err := rows.Scan(&b)
+		if err != nil {
+			panic(err)
+		}
+		balance = b
+	}
+	return income, expenses, balance
 }

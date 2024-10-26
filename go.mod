@@ -1,4 +1,4 @@
-module github.com/emrosas/perfin-cli
+module github.com/emrosas/perfin
 
 go 1.22.2
 

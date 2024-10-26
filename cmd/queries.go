@@ -6,42 +6,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var queryIncomeCmd = &cobra.Command{
-	Use:   "income",
-	Short: "Insert income",
-	Long:  `Insert an income to your balance. You can insert a value and a description.`,
+var overviewCmd = &cobra.Command{
+	Use:   "overview",
+	Short: "Get overview",
+	Long:  `Get an overview of your balance. You can insert a value and a description.`,
 
-	Run: insertIncome,
-}
-
-var expenseCmd = &cobra.Command{
-	Use:   "expense",
-	Short: "Insert expense",
-	Long:  `Insert an expense to your balance. You can insert a value and a description.`,
-
-	Run: insertExpense,
+	Run: getOverview,
 }
 
 func init() {
-	rootCmd.AddCommand(incomeCmd)
-	incomeCmd.Flags().StringP("description", "d", "", "Description of the income")
-	incomeCmd.Flags().IntP("amount", "a", 0, "Amount of income")
-
-	rootCmd.AddCommand(expenseCmd)
-	expenseCmd.Flags().StringP("description", "d", "", "Description of the expense")
-	expenseCmd.Flags().IntP("amount", "a", 0, "Amount of expense")
+	rootCmd.AddCommand(overviewCmd)
 }
 
-func insertIncome(cmd *cobra.Command, args []string) {
-	description, _ := cmd.Flags().GetString("description")
-	amount, _ := cmd.Flags().GetInt("amount")
-	insertIncomeToDB(description, amount)
-	fmt.Println("Income inserted successfully")
-}
-
-func insertExpense(cmd *cobra.Command, args []string) {
-	description, _ := cmd.Flags().GetString("description")
-	amount, _ := cmd.Flags().GetInt("amount")
-	insertExpenseToDB(description, amount)
-	fmt.Println("Expense inserted successfully")
+func getOverview(cmd *cobra.Command, args []string) {
+	fmt.Println("Querying overview...")
+	income, expenses, balance := queryOverview()
+	fmt.Println("Income: ", income)
+	fmt.Println("Expenses: ", expenses)
+	fmt.Println("Balance: ", balance)
 }
