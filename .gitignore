@@ -1,0 +1,31 @@
+# Compiled output
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test output
+*.test
+*.prof
+
+# Environment
+.env
+.env.*
+
+# Editor files
+.vscode/
+.idea/
+
+# Build files
+go.work
+go.work.sum
+
+# Misc
+.DS_Store
+
+# DB files
+*.db
+*.db-shm
+*.db-wal
