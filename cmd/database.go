@@ -52,14 +52,6 @@ func initDatabase() {
 		panic(err)
 	}
 
-	_, err = db.Exec(
-		`CREATE VIEW total_balance AS
-			SELECT (SELECT SUM(amount) FROM income) - (SELECT SUM(amount) FROM expenses) AS balance;`,
-	)
-	if err != nil {
-		panic(err)
-	}
-
 }
 
 func connectDatabase() *sql.DB {
@@ -128,15 +120,8 @@ func queryOverview() (income, expenses, balance int, err error) {
 		fmt.Println("No expenses found")
 	}
 
-	// Get balance
-	var balanceNullable sql.NullInt64
-	err = db.QueryRow("SELECT balance FROM total_balance").Scan(&balanceNullable)
-	if err != nil {
-		return 0, 0, 0, err
-	}
-	if balanceNullable.Valid {
-		balance = int(balanceNullable.Int64)
-	}
+	// Calculate balance
+	balance = income - expenses
 
 	return income, expenses, balance, nil
 }
