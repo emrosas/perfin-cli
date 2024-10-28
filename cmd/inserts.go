@@ -37,3 +37,29 @@ func insertHandler(cmd *cobra.Command, args []string) {
 		fmt.Println("Invalid transaction type. Please use 'income' or 'expense'.")
 	}
 }
+
+func insertIncomeToDB(d string, a int) {
+	db, err := connectDatabase()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec("INSERT INTO income (description, amount) VALUES (?, ?)", d, a)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func insertExpenseToDB(d string, a int) {
+	db, err := connectDatabase()
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec("INSERT INTO expenses (description, amount) VALUES (?, ?)", d, a)
+	if err != nil {
+		panic(err)
+	}
+}
