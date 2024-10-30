@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/leekchan/accounting"
 	"github.com/spf13/cobra"
 )
@@ -46,7 +48,17 @@ func getOverview(cmd *cobra.Command, args []string) {
 	}
 	ac := accounting.Accounting{Symbol: "$"}
 	fmt.Println("\nHere's an overview on your finances")
-	fmt.Printf("Income: %s\nExpenses: %s\nBalance: %s\n", ac.FormatMoney(income), ac.FormatMoney(expenses), ac.FormatMoney(balance))
+
+	tbl := table.New().
+		Border(lipgloss.NormalBorder()).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("99"))).
+		Headers("CATEGORY", "AMOUNT")
+
+	tbl.Row("Income", ac.FormatMoney(income))
+	tbl.Row("Expenses", ac.FormatMoney(expenses))
+	tbl.Row("Balance", ac.FormatMoney(balance))
+
+	fmt.Println(tbl)
 }
 
 func getIncome(cmd *cobra.Command, args []string) {
@@ -57,16 +69,28 @@ func getIncome(cmd *cobra.Command, args []string) {
 	}
 
 	ac := accounting.Accounting{Symbol: "$"}
+	var rows [][]string
 
 	for _, income := range incomes {
-		fmt.Printf("%d | %s | %s\n", income.ID, income.Description, ac.FormatMoney(income.Amount))
+		rows = append(rows, []string{fmt.Sprintf("%d", income.ID), income.Description, ac.FormatMoney(income.Amount)})
 	}
+
+	tbl := table.New().
+		Border(lipgloss.NormalBorder()).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#7cab00"))).
+		Headers("ID", "DESCRIPTION", "AMOUNT").
+		Rows(rows...)
 
 	sum := 0
 	for _, income := range incomes {
 		sum += income.Amount
 	}
-	fmt.Printf("Total income: %s\n", ac.FormatMoney(sum))
+
+	tbl.Row("", "", "")
+	tbl.Row("", "Total Income", ac.FormatMoney(sum))
+
+	fmt.Println(tbl)
+
 }
 
 func getExpenses(cmd *cobra.Command, args []string) {
@@ -78,15 +102,28 @@ func getExpenses(cmd *cobra.Command, args []string) {
 
 	ac := accounting.Accounting{Symbol: "$"}
 
+	var rows [][]string
+
 	for _, expense := range expenses {
-		fmt.Printf("%d | %s | %s\n", expense.ID, expense.Description, ac.FormatMoney(expense.Amount))
+		rows = append(rows, []string{fmt.Sprintf("%d", expense.ID), expense.Description, ac.FormatMoney(expense.Amount)})
 	}
+
+	tbl := table.New().
+		Border(lipgloss.NormalBorder()).
+		BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#da3f3f"))).
+		Headers("ID", "DESCRIPTION", "AMOUNT").
+		Rows(rows...)
 
 	sum := 0
 	for _, expense := range expenses {
 		sum += expense.Amount
 	}
-	fmt.Printf("Total expense: %s\n", ac.FormatMoney(sum))
+
+	tbl.Row("", "", "")
+	tbl.Row("", "Total Expenses", ac.FormatMoney(sum))
+
+	fmt.Println(tbl)
+
 }
 
 func queryOverview() (income, expenses, balance int, err error) {
