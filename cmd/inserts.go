@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/charmbracelet/huh"
 	"github.com/spf13/cobra"
 )
 
@@ -28,38 +29,33 @@ func insertHandler(cmd *cobra.Command, args []string) {
 
 	switch transactionType {
 	case "income":
-		insertIncomeToDB(description, amount)
+		insertTransactionToDB(description, amount, "income")
 		fmt.Println("Income inserted successfully")
 	case "expense":
-		insertExpenseToDB(description, amount)
+		insertTransactionToDB(description, amount, "expense")
 		fmt.Println("Expense inserted successfully")
 	default:
 		fmt.Println("Invalid transaction type. Please use 'income' or 'expense'.")
 	}
 }
 
-func insertIncomeToDB(d string, a int) {
+func insertTransactionToDB(d string, a int, transactionType string) {
 	db, err := connectDatabase()
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	_, err = db.Exec("INSERT INTO income (description, amount) VALUES (?, ?)", d, a)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func insertExpenseToDB(d string, a int) {
-	db, err := connectDatabase()
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	_, err = db.Exec("INSERT INTO expenses (description, amount) VALUES (?, ?)", d, a)
-	if err != nil {
-		panic(err)
+	switch transactionType {
+	case "income":
+		_, err = db.Exec("INSERT INTO income (description, amount) VALUES (?, ?)", d, a)
+		if err != nil {
+			panic(err)
+		}
+	case "expense":
+		_, err = db.Exec("INSERT INTO expenses (description, amount) VALUES (?, ?)", d, a)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
