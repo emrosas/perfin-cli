@@ -22,7 +22,14 @@ func init() {
 
 func deleteHandler(cmd *cobra.Command, args []string) {
 	id, _ := cmd.Flags().GetInt("id")
+	idSet := cmd.Flags().Changed("id")
 	transactionType, _ := cmd.Flags().GetString("type")
+
+	if !idSet {
+		fmt.Println("ID is required")
+		return
+	}
+
 	err := deleteTransaction(id, transactionType)
 	if err != nil {
 		fmt.Println("Error deleting transaction:", err)
