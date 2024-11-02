@@ -44,6 +44,7 @@ func insertHandler(cmd *cobra.Command, args []string) {
 		}
 	} else if !descriptionSet || !amountSet {
 		// If either description or amount is missing, display the form
+		fmt.Println("Please provide both description and amount when using flags.")
 		displayInsertForm()
 	} else {
 		fmt.Println("Please provide both description and amount when using flags.")
@@ -101,18 +102,6 @@ func displayInsertForm() {
 	default:
 		fmt.Println("Invalid transaction type. Please use 'income' or 'expense'.")
 	}
-}
-
-func validateInteger(value string) error {
-	if !isInt(value) {
-		return fmt.Errorf("please enter a valid integer")
-	}
-	return nil
-}
-
-func isInt(s string) bool {
-	_, err := strconv.ParseInt(s, 10, 64)
-	return err == nil
 }
 
 func insertTransactionToDB(d string, a int, transactionType string) {
